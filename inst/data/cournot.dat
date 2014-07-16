@@ -1,0 +1,14 @@
+
+/* Sets */
+  set N := 1 2;
+
+
+/* Parameter */
+  param a := 1;
+
+  param b := 1;
+
+  param c := [1] 0.1 [2] 0.1;
+
+
+
