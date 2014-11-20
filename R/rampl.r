@@ -154,11 +154,9 @@ ampl.make.run.file = function(name,run.name=name,options="",
  restore.point("ampl.make.run.file")  
  str = paste(options,"\n\n",collapse="\n")
  if (!neos) {
-    str = paste(str,
-      "model ", mod.file,";\n",
-      "data ",dat.file,";\n\n"
-      ,sep="")
-  }
+   str = paste(str, "model \"", mod.file, "\";\n", "data \"",
+               dat.file, "\";\n\n", sep = "")
+ }
   str = paste(str,"solve;\n\n")
   
   mi = gmpl.get.model.info(mod.file)
