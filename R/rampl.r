@@ -159,7 +159,7 @@ ampl.make.run.file = function(name,run.name=name,options="",
  }
   str = paste(str,"solve;\n\n")
   
-  mi = gmpl.get.model.info(mod.file)
+  mi = ampl.get.model.info(mod.file)
   if (is.null(var.out)) {
     var.out = mi$var
   }
@@ -375,4 +375,71 @@ fast_str_split_fixed = function(pattern,text,ncol=NULL,...) {
   }
   mat[,ncol:=text, with=FALSE]
   return(as.matrix(mat))
+}
+
+#' Adapted from gmpl get.model.info
+ampl.get.model.info <- function (mod.file) 
+{
+  restore.point("ampl.get.model.info")
+  require(stringr)
+  str = readLines(mod.file)
+  str = str_trim(str)
+  rows = str_sub(str, 1, 3) == "set"
+  txt = str_trim(str_sub(str[rows], 4))
+  end.name = str_locate(txt, "[{;=<> ]")[, 1]
+  sets.name = str_sub(txt, 1, end.name - 1)
+  extract.sets = function(txt) {
+      brace.start = str_locate(txt, fixed("{"))[, 1]
+      brace.end = str_locate(txt, fixed("}"))[, 1]
+      in.brace = str_sub(txt, brace.start + 1, brace.end - 
+          1)
+      my.sets = str_split(in.brace, fixed(","))
+      my.sets = lapply(my.sets, str_trim)
+      my.sets = lapply(my.sets, function(set) {
+          if (is.na(set[1])) 
+              return(set)
+          set = str_trim(set)
+          in.pos = str_locate(set, fixed(" in "))[, 2]
+          rows = which(!is.na(in.pos))
+          if (length(rows) > 0) 
+              set[rows] = substring(set[rows], in.pos[rows] + 
+                1)
+          return(set)
+      })
+      return(my.sets)
+  }
+  sets.sets = extract.sets(txt)
+  names(sets.sets) = sets.name
+  
+  rows = str_sub(str, 1, 3) == "var"
+  txt = str_trim(str_sub(str[rows], 4))
+  end.name = str_locate(txt, "[{;=<> ]")[, 1]
+  var.name = str_sub(txt, 1, end.name - 1)
+  var.sets = extract.sets(ampl.str.left.of(txt,"="))
+  names(var.sets) = var.name
+  
+  
+  rows = str_sub(str, 1, 5) == "param"
+  txt = str_trim(str_sub(str[rows], 6))
+  end.name = str_locate(txt, "[{;=<> ]")[, 1]
+  param.name = str_sub(txt, 1, end.name - 1)
+  param.sets = extract.sets(txt)
+  names(param.sets) = param.name
+  comment.start = str_locate(txt, fixed("#"))[, 1]
+  comment.start[is.na(comment.start)] = 1e+06
+  param.defined = str_detect(substring(txt, 1, comment.start), 
+      fixed("="))
+  return(list(sets = sets.name, sets.sets = sets.sets, var = var.name, 
+      var.sets = var.sets, param = param.name, param.sets = param.sets, 
+      param.defined = param.defined))
+}
+
+
+ampl.str.left.of <-function (str, pattern, ..., not.found = str) 
+{
+    pos = str_locate(str, fixed(pattern))
+    res = substring(str, 1, pos[, 1] - 1)
+    rows = is.na(pos[, 1])
+    res[rows] = not.found[rows]
+    res
 }
