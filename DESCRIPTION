@@ -4,7 +4,7 @@ Title: Tools to work with AMPL from R
 Version: 0.02
 Date: 2012-11-04
 Author: Sebastian Kranz
-Maintainer: Sebastian Kranz <sebastian.kranz@uni-ulm.com>
+Maintainer: Sebastian Kranz <sebastian.kranz@uni-ulm.de>
 Description: Tools to work with AMPL from R. Writing AMPL dat files, running AMPL locally or using the NEOS solvers.
 License: GPL (>= 2)
 Depends: stringr, rgmpl, rneos, data.table, restorepoint
